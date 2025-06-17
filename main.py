@@ -1,13 +1,6 @@
 from flask import Flask, jsonify
 import os
 import requests
-import logging
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
 
 app = Flask(__name__)
 
@@ -24,8 +17,8 @@ def check_newrelic():
     if not NEW_RELIC_API_KEY or not NEW_RELIC_ACCOUNT_ID:
         logging.warning("❌ Missing API key or Account ID")
         return jsonify({"error": "Missing NEW_RELIC_API_KEY or NEW_RELIC_ACCOUNT_ID"}), 500
-   
-    logging.info("✅ API key & Account ID exists")
+    else:
+         logging.info("✅ API key & Account ID exists")
 
     
 
