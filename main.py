@@ -8,6 +8,8 @@ app = Flask(__name__)
 
 # Init Vertex AI
 gcp_project = os.environ.get("GCP_PROJECT")
+if not gcp_project:
+    raise RuntimeError("GCP_PROJECT environment variable is not set")
 vertexai.init(project=gcp_project, location="us-central1")
 gemini = GenerativeModel("gemini-1.5-pro-002")
 
@@ -61,4 +63,4 @@ def recommend():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+    app.run(host="0.0.0.0", port=8080)
