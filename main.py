@@ -15,17 +15,24 @@ def hello():
 @app.route("/check-newrelic")
 def check_newrelic():
     if not NEW_RELIC_API_KEY or not NEW_RELIC_ACCOUNT_ID:
+        logging.warning("❌ Missing API key or Account ID")
         return jsonify({"error": "Missing NEW_RELIC_API_KEY or NEW_RELIC_ACCOUNT_ID"}), 500
+    else:
+         logging.info("✅ API key & Account ID exists")
 
-    # Dummy NRQL query to verify API access
-    nrql = "SELECT count(*) FROM Transaction SINCE 1 minute ago"
-    url = f"https://api.newrelic.com/v1/accounts/{NEW_RELIC_ACCOUNT_ID}/query?nrql={nrql}"
+    
+
+    nrql = "SELECT count(*) FROM Transaction SINCE 5 minutes ago"
+    url = "https://insights-api.newrelic.com/v1/accounts/{}/query".format(NEW_RELIC_ACCOUNT_ID)
     headers = {
-        "X-Api-Key": NEW_RELIC_API_KEY,
-        "Content-Type": "application/json"
+        "X-Query-Key": NEW_RELIC_API_KEY,
+        "Accept": "application/json"
+    }
+    params = {
+        "nrql": nrql
     }
 
-    resp = requests.get(url, headers=headers)
+    resp = requests.get(url, headers=headers, params=params)
 
     if resp.status_code == 200:
         return jsonify({"message": "Successfully connected to New Relic"}), 200
