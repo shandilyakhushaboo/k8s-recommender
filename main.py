@@ -29,21 +29,36 @@ def check_newrelic():
 
     
 
+    # NRQL query
     nrql = "SELECT count(*) FROM Transaction SINCE 5 minutes ago"
-    url = "https://insights-api.newrelic.com/v1/accounts/{}/query".format(NEW_RELIC_ACCOUNT_ID)
+    url = "https://api.newrelic.com/graphql"
     headers = {
-        "X-Query-Key": NEW_RELIC_API_KEY,
-        "Accept": "application/json"
+        "API-Key": NEW_RELIC_API_KEY,
+        "Content-Type": "application/json"
     }
-    params = {
-        "nrql": nrql
+    query = {
+        "query": f"""
+        {{
+          actor {{
+            account(id: {NEW_RELIC_ACCOUNT_ID}) {{
+              nrql(query: "{nrql}") {{
+                results
+              }}
+            }}
+          }}
+        }}
+        """
     }
 
-    resp = requests.get(url, headers=headers, params=params)
+      resp = requests.post(url, headers=headers, json=query)
 
     if resp.status_code == 200:
-        return jsonify({"message": "Successfully connected to New Relic"}), 200
+        data = resp.json()
+        results = data.get("data", {}).get("actor", {}).get("account", {}).get("nrql", {}).get("results", [])
+        logging.info(f"✅ NRQL Query Results: {results}")
+        return jsonify({"message": "Successfully connected to New Relic", "results": results}), 200
     else:
+        logging.error(f"❌ Failed to connect to New Relic: {resp.status_code} - {resp.text}")
         return jsonify({
             "error": "Failed to connect to New Relic",
             "status_code": resp.status_code,
