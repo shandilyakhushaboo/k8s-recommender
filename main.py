@@ -27,8 +27,6 @@ def check_newrelic():
    
     logging.info("✅ API key & Account ID exists")
 
-    
-
     # NRQL query
     nrql = "SELECT count(*) FROM Transaction SINCE 5 minutes ago"
     url = "https://api.newrelic.com/graphql"
@@ -50,7 +48,7 @@ def check_newrelic():
         """
     }
 
-      resp = requests.post(url, headers=headers, json=query)
+    resp = requests.post(url, headers=headers, json=query)
 
     if resp.status_code == 200:
         data = resp.json()
